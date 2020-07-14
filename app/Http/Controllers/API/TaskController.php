@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Services\ImagickPhotoService;
+use App\Services\PhotoService;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
@@ -28,25 +30,26 @@ class TaskController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(Request $request, PhotoService $photoService)
     {
+        $task = $photoService->crop();
+//
+//        $input = $request->all();
+//
+//        $input = $this->validateTask($input);
+//
+//        $validator = Validator::make($input, [
+//            'name' => 'required',
+//            'board_id' => 'required',
+//        ]);
+//
+//        if($validator->fails()){
+//            return $this->sendError('Validation Error.', $validator->errors());
+//        }
+//
+//        $task = Task::create($input);
 
-        $input = $request->all();
-
-        $input = $this->validateTask($input);
-
-        $validator = Validator::make($input, [
-            'name' => 'required',
-            'board_id' => 'required',
-        ]);
-
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-
-        $task = Task::create($input);
-
-        return $this->sendResponse($task->toArray(), 'Task created successfully.');
+        return $this->sendResponse($task, 'Task created successfully.');
     }
 
     /**
