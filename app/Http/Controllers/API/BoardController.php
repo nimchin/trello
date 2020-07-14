@@ -16,7 +16,7 @@ class BoardController extends BaseController
      */
     public function index()
     {
-        $boards = Board::all();
+        $boards = Board::paginate($this->paginationSettings['per_page']);
 
         return $this->sendResponse($boards->toArray(), 'Boards retrieved successfully.');
     }

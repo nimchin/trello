@@ -17,7 +17,7 @@ class TaskController extends BaseController
      */
     public function index()
     {
-        $tasks = Task::all();
+        $tasks = Task::paginate($this->paginationSettings['per_page']);
 
         return $this->sendResponse($tasks->toArray(), 'Tasks retrieved successfully.');
     }

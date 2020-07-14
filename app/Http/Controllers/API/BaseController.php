@@ -7,6 +7,10 @@ use App\Http\Controllers\Controller as Controller;
 
 class BaseController extends Controller
 {
+
+    protected $paginationSettings = [
+        'per_page' => 15,
+    ];
     /**
      * success response method.
      *
