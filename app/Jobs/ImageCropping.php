@@ -24,7 +24,7 @@ class ImageCropping implements ShouldQueue
      * @param $imageName
      * @param $imagePath
      */
-    public function __construct($imageName, $imagePath)
+    public function __construct($imagePath, $imageName)
     {
         $this->imageName = $imageName;
         $this->imagePath = $imagePath;

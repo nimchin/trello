@@ -35,7 +35,6 @@ class TaskController extends BaseController
     public function store(Request $request)
     {
 
-
         $input = $request->all();
 
         $input = $this->validateTask($input);
@@ -45,19 +44,23 @@ class TaskController extends BaseController
             'board_id' => 'required',
         ]);
 
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
 
             $name = time().'.'.$image->getClientOriginalExtension();
             $destinationPath = public_path('/images');
+            if(!is_dir($destinationPath)){
+                mkdir($destinationPath,0777,true);
+                chmod($destinationPath, 0777);
+            }
             $image->move($destinationPath, $name);
+            $input['img_path'] = $destinationPath . '/' . $name;
 
             dispatch(new ImageCropping($destinationPath, $name));
 
-        }
-
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
         }
 
         $task = Task::create($input);
