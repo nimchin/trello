@@ -14,9 +14,15 @@ class PhotoService
         'imagick' => 2,
     ];
 
-    protected $width = 300;
+    const PHOTO_WIDTH = [
+        'mobile' => 320,
+        'desktop' => 1024,
+    ];
 
-    protected $height = 300;
+    const PHOTO_HEIGHT = [
+        'mobile' => 480,
+        'desktop' => 720,
+    ];
 
     private $driver;
 
@@ -28,19 +34,26 @@ class PhotoService
     /**
      * @param $imgPath
      * @param $imgName
+     * @param $croppingFormat
      * @throws \ImagickException
      */
     public function crop($imgPath, $imgName)
     {
         if((int)$this->driver === self::DRIVERS['imagick']){
-            $imageImagick = new Imagick($imgPath . '/'. $imgName);
-            $imageImagick->cropImage(200, 50, 0, 0);
+            $image = new Imagick($imgPath . '/'. $imgName);
             if(!is_dir("$imgPath". '/cropped')){
                 mkdir("$imgPath". '/cropped',0777,true);
+                mkdir("$imgPath". '/cropped/mobile',0777,true);
+                mkdir("$imgPath". '/cropped/desktop',0777,true);
             }
-            $imageImagick->writeImageFile(fopen ($imgPath."/cropped/test_2.jpg", "wb"));
+            //Mobile format
+            $mobileImage = clone $image;
+            $mobileImage->cropThumbnailImage(self::PHOTO_WIDTH['mobile'], self::PHOTO_HEIGHT['mobile']);
+            $mobileImage->writeImageFile(fopen ($imgPath."/cropped/mobile/" . $imgName, "wb"));
+            //Desktop format
+            $image->cropThumbnailImage(self::PHOTO_WIDTH['desktop'], self::PHOTO_HEIGHT['desktop']);
+            $image->writeImageFile(fopen ($imgPath."/cropped/desktop/" . $imgName, "wb"));
         }
-
     }
 
 
