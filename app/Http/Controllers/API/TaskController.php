@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Jobs\ImageCropping;
 use App\Services\ImagickPhotoService;
 use App\Services\PhotoService;
 use http\Env\Response;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Task;
+use Imagick;
 use Validator;
 
 class TaskController extends BaseController
@@ -27,27 +29,38 @@ class TaskController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request, PhotoService $photoService)
+    public function store(Request $request)
     {
-        $task = $photoService->crop();
-//
-//        $input = $request->all();
-//
-//        $input = $this->validateTask($input);
-//
-//        $validator = Validator::make($input, [
-//            'name' => 'required',
-//            'board_id' => 'required',
-//        ]);
-//
-//        if($validator->fails()){
-//            return $this->sendError('Validation Error.', $validator->errors());
-//        }
-//
-//        $task = Task::create($input);
+
+
+        $input = $request->all();
+
+        $input = $this->validateTask($input);
+
+        $validator = Validator::make($input, [
+            'name' => 'required',
+            'board_id' => 'required',
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $image = $request->file('photo');
+
+            $name = time().'.'.$image->getClientOriginalExtension();
+            $destinationPath = public_path('/images');
+            $image->move($destinationPath, $name);
+
+            dispatch(new ImageCropping($destinationPath, $name));
+
+        }
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        $task = Task::create($input);
 
         return $this->sendResponse($task, 'Task created successfully.');
     }
