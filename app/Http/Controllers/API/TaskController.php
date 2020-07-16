@@ -39,6 +39,7 @@ class TaskController extends BaseController
         $input = $request->all();
 
         $input = $this->validateTask($input);
+        $input['author_id'] = auth()->user()->id;
 
         $validator = Validator::make($input, [
             'name' => 'required',
@@ -107,6 +108,8 @@ class TaskController extends BaseController
 
         $input = $this->validateTask($input);
 
+        $input['author_id'] = auth()->user()->id;
+
         if(is_null($task = Task::find((int)$id))) {
             return $this->sendError('Task not found.');
         }
@@ -150,12 +153,16 @@ class TaskController extends BaseController
      *
      * @param array $input
      */
-    private function validateTask(array $input){
+    private function validateTask(array $input)
+    {
         if(isset($input['name']) && $input['name']) {
             $input['name'] = strip_tags($input['name']);
         }
         if(isset($input['board_id']) && $input['board_id']){
             $input['board_id'] = (int)$input['board_id'];
+        }
+        if(isset($input['user_id']) && $input['user_id']) {
+            $input['user_id'] = (int)$input['user_id'];
         }
         if(isset($input['img_path']) && $input['img_path']) {
             $input['img_path'] = strip_tags($input['img_path']);
