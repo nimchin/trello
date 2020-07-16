@@ -36,19 +36,19 @@ class TaskController extends BaseController
     public function store(Request $request)
     {
 
-//        $input = $request->all();
-//
-//        $input = $this->validateTask($input);
-//        $input['author_id'] = auth()->user()->id;
-//
-//        $validator = Validator::make($input, [
-//            'name' => 'required',
-//            'board_id' => 'required',
-//        ]);
-//
-//        if($validator->fails()){
-//            return $this->sendError('Validation Error.', $validator->errors());
-//        }
+        $input = $request->all();
+
+        $input = $this->validateTask($input);
+        $input['author_id'] = auth()->user()->id;
+
+        $validator = Validator::make($input, [
+            'name' => 'required',
+            'board_id' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
         if ($request->hasFile('photo')) {
             $image = $request->file('photo');
 
@@ -64,16 +64,16 @@ class TaskController extends BaseController
             dispatch(new ImageCropping($destinationPath, $name));
 
         }
-//
-//        $task = Task::create($input);
-//
-//        MongoLog::create([
-//            'crud_type'     => 'create',
-//            'entity_type'   => 'task',
-//            'entity_id'     => $task->id,
-//            'message'       => 'Task was created!',
-//            'author_id'     => auth()->user()->id
-//        ]);
+
+        $task = Task::create($input);
+
+        MongoLog::create([
+            'crud_type'     => 'create',
+            'entity_type'   => 'task',
+            'entity_id'     => $task->id,
+            'message'       => 'Task was created!',
+            'author_id'     => auth()->user()->id
+        ]);
 
         return $this->sendResponse('$task', 'Task created successfully.');
     }
