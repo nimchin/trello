@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Jobs\ImageCropping;
+use App\MongoLog;
 use App\Services\ImagickPhotoService;
 use App\Services\PhotoService;
 use http\Env\Response;
@@ -65,7 +66,15 @@ class TaskController extends BaseController
 
         $task = Task::create($input);
 
-        return $this->sendResponse($task, 'Task created successfully.');
+        MongoLog::create([
+            'crud_type'     => 'create',
+            'entity_type'   => 'task',
+            'entity_id'     => $task->id,
+            'message'       => 'Task was created!',
+            'author_id'     => auth()->user()->id
+        ]);
+
+        return $this->sendResponse('$task', 'Task created successfully.');
     }
 
     /**
@@ -104,6 +113,14 @@ class TaskController extends BaseController
 
         $task->update($input);
 
+        MongoLog::create([
+            'crud_type'     => 'update',
+            'entity_type'   => 'task',
+            'entity_id'     => $task->id,
+            'message'       => 'Task was updated!',
+            'author_id'     => auth()->user()->id
+        ]);
+
         return $this->sendResponse($task->toArray(), 'Task updated successfully.');
     }
 
@@ -116,6 +133,14 @@ class TaskController extends BaseController
     public function destroy(Task $task)
     {
         $task->delete();
+
+        MongoLog::create([
+            'crud_type'     => 'delete',
+            'entity_type'   => 'task',
+            'entity_id'     => $task->id,
+            'message'       => 'Task was deleted!',
+            'author_id'     => auth()->user()->id
+        ]);
 
         return $this->sendResponse($task->toArray(), 'Task deleted successfully.');
     }
