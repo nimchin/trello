@@ -11,9 +11,16 @@
 |
 */
 
+use App\Board;
+use App\Http\Resources\BoardsCollection;
+
 Route::post('register', 'API\RegisterController@register');
 
 Route::middleware('auth:api')->group( function () {
     Route::resource('boards', 'API\BoardController');
     Route::resource('tasks', 'API\TaskController');
+
+    Route::get('boards-collection', function(){
+       return new BoardsCollection(Board::all());
+    });
 });
