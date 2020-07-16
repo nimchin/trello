@@ -5,13 +5,15 @@ namespace App\Services;
 
 
 use Imagick;
+use Intervention\Image\Facades\Image;
+use Intervention\Image\ImageManager;
 
 class PhotoService
 {
     const DRIVERS = [
         // Add new image drivers here
-        'intervention' => 1,
-        'imagick' => 2,
+        'intervention' => 'intervention',
+        'imagick' => 'imagick',
     ];
 
     const PHOTO_WIDTH = [
@@ -39,13 +41,13 @@ class PhotoService
      */
     public function crop($imgPath, $imgName)
     {
-        if((int)$this->driver === self::DRIVERS['imagick']){
+        if(!is_dir("$imgPath". '/cropped')){
+            mkdir("$imgPath". '/cropped',0777,true);
+            mkdir("$imgPath". '/cropped/mobile',0777,true);
+            mkdir("$imgPath". '/cropped/desktop',0777,true);
+        }
+        if($this->driver === self::DRIVERS['imagick']){
             $image = new Imagick($imgPath . '/'. $imgName);
-            if(!is_dir("$imgPath". '/cropped')){
-                mkdir("$imgPath". '/cropped',0777,true);
-                mkdir("$imgPath". '/cropped/mobile',0777,true);
-                mkdir("$imgPath". '/cropped/desktop',0777,true);
-            }
             //Mobile format
             $mobileImage = clone $image;
             $mobileImage->cropThumbnailImage(self::PHOTO_WIDTH['mobile'], self::PHOTO_HEIGHT['mobile']);
@@ -53,6 +55,15 @@ class PhotoService
             //Desktop format
             $image->cropThumbnailImage(self::PHOTO_WIDTH['desktop'], self::PHOTO_HEIGHT['desktop']);
             $image->writeImageFile(fopen ($imgPath."/cropped/desktop/" . $imgName, "wb"));
+        } else if($this->driver === self::DRIVERS['intervention']) {
+            $image = Image::make($imgPath . '/'. $imgName);
+            //Mobile format
+            $mobileImage = clone $image;
+            $mobileImage->crop(self::PHOTO_WIDTH['mobile'], self::PHOTO_HEIGHT['mobile']);
+            $mobileImage->save(public_path(). '/images/cropped/mobile/'. $imgName);
+            //Desktop format
+            $image->crop(self::PHOTO_WIDTH['desktop'], self::PHOTO_HEIGHT['desktop']);
+            $image->save(public_path() . '/images/cropped/desktop/' . $imgName);
         }
     }
 
