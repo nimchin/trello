@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Resources\BoardsCollection;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Board;
@@ -12,13 +13,13 @@ class BoardController extends BaseController
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return BoardsCollection
      */
     public function index()
     {
-        $boards = Board::paginate($this->paginationSettings['per_page']);
+        $boards = new BoardsCollection(Board::paginate(config('pagination.per_page')));
 
-        return $this->sendResponse($boards->toArray(), 'Boards retrieved successfully.');
+        return $boards;
     }
 
     /**
