@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\MongoLog;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\User;
@@ -13,7 +15,8 @@ class RegisterController extends BaseController
     /**
      * Register api
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return JsonResponse
      */
     public function register(Request $request)
     {
@@ -31,6 +34,15 @@ class RegisterController extends BaseController
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
         $user = User::create($input);
+
+        MongoLog::create([
+            'crud_type'     => 'create',
+            'entity_type'   => 'user',
+            'entity_id'     => $user->id,
+            'message'       => 'User was created!',
+            'author_id'     => auth()->user()->id
+        ]);
+
         $success['token'] =  $user->createToken('MyApp')->accessToken;
         $success['name'] =  $user->name;
 
