@@ -53,7 +53,7 @@ class BoardPolicy
      */
     public function update(User $user, Board $board)
     {
-        //
+        return $user->id === $board->author_id;
     }
 
     /**

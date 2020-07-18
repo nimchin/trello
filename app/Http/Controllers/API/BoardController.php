@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Requests\Board\CreateBoard;
+use App\Http\Requests\Board\UpdateBoard;
 use App\Http\Resources\BoardsCollection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -30,20 +31,7 @@ class BoardController extends BaseController
      */
     public function store(CreateBoard $request)
     {
-
-        $input = $request->all();
-
-        $input = $this->validateBoard($input);
-
-        $validator = Validator::make($input, [
-            'author_id' => 'required',
-        ]);
-
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-
-        $board = Board::create($input);
+        $board = Board::create($request->all());
 
         return $this->sendResponse($board->toArray(), 'Board created successfully.');
     }
@@ -68,25 +56,13 @@ class BoardController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param UpdateBoard $request
+     * @param Board $board
      * @return JsonResponse
      */
-    public function update(Request $request, Board $board)
+    public function update(UpdateBoard $request, Board $board)
     {
-        $input = $request->all();
-
-        $input = $this->validateBoard($input);
-
-        $validator = Validator::make($input, [
-            'author_id' => 'required'
-        ]);
-
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-
-        $board->save();
+        $board->update($request->all());
 
         return $this->sendResponse($board->toArray(), 'Board updated successfully.');
     }
@@ -104,19 +80,4 @@ class BoardController extends BaseController
         return $this->sendResponse($board->toArray(), 'Board deleted successfully.');
     }
 
-    /**
-     * Validating board model
-     * @param array $input
-     * @return array
-     */
-    private function validateBoard(array $input)
-    {
-        if(isset($input['name']) && $input['name']) {
-            $input['name'] = strip_tags($input['name']);
-        }
-        if(isset($input['author_id']) && $input['author_id']) {
-            $input['author_id'] = (int)$input['author_id'];
-        }
-        return $input;
-    }
 }

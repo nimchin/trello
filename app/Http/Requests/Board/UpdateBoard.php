@@ -5,7 +5,7 @@ namespace App\Http\Requests\Board;
 use App\Board;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateBoard extends FormRequest
+class UpdateBoard extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -14,7 +14,9 @@ class CreateBoard extends FormRequest
      */
     public function authorize()
     {
-        return auth()->user()->can('create', Board::class);
+        $board = Board::find((int)$this->route('id'));
+
+        return auth()->user()->can('update', $board);
     }
 
     public function prepareForValidation()
@@ -36,7 +38,15 @@ class CreateBoard extends FormRequest
     public function rules()
     {
         return [
-            'author_id' => 'required',
+            'author_id' => 'required|exists:users,id'
         ];
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function messages()
+    {
+        return ['author_id.exists' => 'Not existing user with provided id'];
     }
 }
