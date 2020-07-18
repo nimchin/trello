@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Requests\Board\CreateBoard;
 use App\Http\Resources\BoardsCollection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Board;
@@ -17,18 +19,16 @@ class BoardController extends BaseController
      */
     public function index()
     {
-        $boards = new BoardsCollection(Board::paginate(config('pagination.per_page')));
-
-        return $boards;
+        return new BoardsCollection(Board::paginate(config('pagination.per_page')));
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param CreateBoard $request
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function store(CreateBoard $request)
     {
 
         $input = $request->all();
@@ -52,7 +52,7 @@ class BoardController extends BaseController
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function show($id)
     {
@@ -70,7 +70,7 @@ class BoardController extends BaseController
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update(Request $request, Board $board)
     {
@@ -95,7 +95,7 @@ class BoardController extends BaseController
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function destroy(Board $board)
     {
