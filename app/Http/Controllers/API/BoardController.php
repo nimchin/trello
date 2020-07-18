@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Requests\Board\CreateBoard;
 use App\Http\Requests\Board\UpdateBoard;
 use App\Http\Resources\BoardsCollection;
+use App\MongoLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
@@ -32,6 +33,14 @@ class BoardController extends BaseController
     public function store(CreateBoard $request)
     {
         $board = Board::create($request->all());
+
+        MongoLog::create([
+            'crud_type'     => 'create',
+            'entity_type'   => 'board',
+            'entity_id'     => $board->id,
+            'message'       => 'Board was created!',
+            'author_id'     => auth()->user()->id
+        ]);
 
         return $this->sendResponse($board->toArray(), 'Board created successfully.');
     }
@@ -64,18 +73,35 @@ class BoardController extends BaseController
     {
         $board->update($request->all());
 
+        MongoLog::create([
+            'crud_type'     => 'update',
+            'entity_type'   => 'board',
+            'entity_id'     => $board->id,
+            'message'       => 'Board was updated!',
+            'author_id'     => auth()->user()->id
+        ]);
+
         return $this->sendResponse($board->toArray(), 'Board updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param Board $board
      * @return JsonResponse
+     * @throws \Exception
      */
     public function destroy(Board $board)
     {
         $board->delete();
+
+        MongoLog::create([
+            'crud_type'     => 'update',
+            'entity_type'   => 'task',
+            'entity_id'     => $board->id,
+            'message'       => 'Board was deleted!',
+            'author_id'     => auth()->user()->id
+        ]);
 
         return $this->sendResponse($board->toArray(), 'Board deleted successfully.');
     }
