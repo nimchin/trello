@@ -71,6 +71,7 @@ class BoardController extends BaseController
      */
     public function update(UpdateBoard $request, Board $board)
     {
+
         $board->update($request->all());
 
         MongoLog::create([

@@ -85,19 +85,13 @@ class TaskController extends BaseController
      * Update the specified resource in storage.
      *
      * @param UpdateTask $request
-     * @param int $id
+     * @param Task $task
      * @return JsonResponse
      */
-    public function update(UpdateTask $request, $id)
+    public function update(UpdateTask $request, Task $task)
     {
 
-        $input['author_id'] = auth()->user()->id;
-
-        if(is_null($task = Task::find((int)$id))) {
-            return $this->sendError('Task not found.');
-        }
-
-        $task->update($input);
+        $task->update($request->all());
 
         MongoLog::create([
             'crud_type'     => 'update',

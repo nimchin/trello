@@ -14,9 +14,7 @@ class UpdateBoard extends FormRequest
      */
     public function authorize()
     {
-        $board = Board::find((int)$this->route('id'));
-
-        return auth()->user()->can('update', $board);
+        return auth()->user()->can('update', $this->route()->parameter('board'));
     }
 
     public function prepareForValidation()

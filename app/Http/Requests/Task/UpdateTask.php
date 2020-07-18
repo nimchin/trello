@@ -15,10 +15,7 @@ class UpdateTask extends FormRequest
      */
     public function authorize()
     {
-        $id = $this->route('id') || $this->id;
-        $task = Task::find((int)$id);
-
-        return auth()->user()->can('update', $task);
+        return auth()->user()->can('update', $this->route()->parameter('task'));
     }
 
     /**
@@ -30,6 +27,7 @@ class UpdateTask extends FormRequest
     {
         return [
             'status' => Rule::in(['done', 'in progress']),
+            'author_id' => 'required|exists:users,id'
         ];
     }
 
@@ -51,6 +49,19 @@ class UpdateTask extends FormRequest
         if($this->status){
             $attributes['status'] = strip_tags($this->status);
         }
+        if($this->author_id){
+            $attributes['author_id'] = (int)$this->author_id;
+        } else {
+            $attributes['author_id'] = auth()->user()->id;
+        }
         $this->merge($attributes);
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function messages()
+    {
+        return ['author_id.exists' => 'Not existing user with provided id'];
     }
 }
