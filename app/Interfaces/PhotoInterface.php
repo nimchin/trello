@@ -2,7 +2,7 @@
 
 interface PhotoInterface {
 
-    public function cropForMobile();
+    public function cropForMobile($imgPath, $imgName);
 
-    public function cropForDesktop();
+    public function cropForDesktop($imgPath, $imgName);
 }

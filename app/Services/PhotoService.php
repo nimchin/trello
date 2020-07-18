@@ -26,11 +26,20 @@ class PhotoService
         'desktop' => 720,
     ];
 
+    private $imagickPhotoService;
+
+    private $interventionPhotoService;
+
     private $driver;
 
-    public function __construct()
+    public function __construct(
+        ImagickPhotoService $imagickPhotoService,
+        InterventionPhotoService $interventionPhotoService
+    )
     {
         $this->driver = config('drivers.image_driver');
+        $this->imagickPhotoService = $imagickPhotoService;
+        $this->interventionPhotoService = $interventionPhotoService;
     }
 
     /**
@@ -47,23 +56,11 @@ class PhotoService
             mkdir("$imgPath". '/cropped/desktop',0777,true);
         }
         if($this->driver === self::DRIVERS['imagick']){
-            $image = new Imagick($imgPath . '/'. $imgName);
-            //Mobile format
-            $mobileImage = clone $image;
-            $mobileImage->cropThumbnailImage(self::PHOTO_WIDTH['mobile'], self::PHOTO_HEIGHT['mobile']);
-            $mobileImage->writeImageFile(fopen ($imgPath."/cropped/mobile/" . $imgName, "wb"));
-            //Desktop format
-            $image->cropThumbnailImage(self::PHOTO_WIDTH['desktop'], self::PHOTO_HEIGHT['desktop']);
-            $image->writeImageFile(fopen ($imgPath."/cropped/desktop/" . $imgName, "wb"));
+            $this->imagickPhotoService->cropForMobile($imgPath, $imgName);
+            $this->imagickPhotoService->cropForDesktop($imgPath, $imgName);
         } else if($this->driver === self::DRIVERS['intervention']) {
-            $image = Image::make($imgPath . '/'. $imgName);
-            //Mobile format
-            $mobileImage = clone $image;
-            $mobileImage->crop(self::PHOTO_WIDTH['mobile'], self::PHOTO_HEIGHT['mobile']);
-            $mobileImage->save(public_path(). '/images/cropped/mobile/'. $imgName);
-            //Desktop format
-            $image->crop(self::PHOTO_WIDTH['desktop'], self::PHOTO_HEIGHT['desktop']);
-            $image->save(public_path() . '/images/cropped/desktop/' . $imgName);
+            $this->interventionPhotoService->cropForMobile($imgPath, $imgName);
+            $this->interventionPhotoService->cropForDesktop($imgPath, $imgName);
         }
     }
 

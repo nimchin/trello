@@ -4,18 +4,33 @@
 namespace App\Services;
 
 
+use Imagick;
+
 class ImagickPhotoService extends PhotoService implements \PhotoInterface
 {
 
-
-    public function cropForDesktop()
+    /**
+     * @param $imgPath
+     * @param $imgName
+     * @throws \ImagickException
+     */
+    public function cropForDesktop($imgPath, $imgName)
     {
-        // TODO: Implement cropForDesktop() method.
+        $image = new Imagick($imgPath . '/'. $imgName);
+        $image->cropThumbnailImage(self::PHOTO_WIDTH['desktop'], self::PHOTO_HEIGHT['desktop']);
+        $image->writeImageFile(fopen ($imgPath."/cropped/desktop/" . $imgName, "wb"));
     }
 
-    public function cropForMobile()
+    /**
+     * @param $imgPath
+     * @param $imgName
+     * @throws \ImagickException
+     */
+    public function cropForMobile($imgPath, $imgName)
     {
-        // TODO: Implement cropForMobile() method.
+        $image = new Imagick($imgPath . '/'. $imgName);
+        $image->cropThumbnailImage(self::PHOTO_WIDTH['mobile'], self::PHOTO_HEIGHT['mobile']);
+        $image->writeImageFile(fopen ($imgPath."/cropped/mobile/" . $imgName, "wb"));
     }
 
 }
