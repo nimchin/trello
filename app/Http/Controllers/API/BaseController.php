@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers\API;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller as Controller;
 
 class BaseController extends Controller
 {
 
-    protected $paginationSettings = [
-        'per_page' => 15,
-    ];
     /**
      * success response method.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param $result
+     * @param string $message
+     * @return JsonResponse
      */
-    public function sendResponse($result, $message)
+    public function sendResponse($result, $message = '')
     {
         $response = [
             'success' => true,
@@ -30,7 +30,7 @@ class BaseController extends Controller
     /**
      * return error response.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function sendError($error, $errorMessages = [], $code = 404)
     {

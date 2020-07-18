@@ -4,6 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Requests\Task\CreateTask;
 use App\Http\Requests\Task\UpdateTask;
+use App\Http\Resources\TaskCollection;
+use App\Http\Resources\TaskResource;
 use App\Jobs\ImageCropping;
 use App\MongoLog;
 use Illuminate\Http\JsonResponse;
@@ -19,9 +21,7 @@ class TaskController extends BaseController
      */
     public function index()
     {
-        $tasks = Task::paginate($this->paginationSettings['per_page']);
-
-        return $this->sendResponse($tasks->toArray(), 'Tasks retrieved successfully.');
+        return $this->sendResponse(new TaskCollection(Task::paginate(config('pagination.per_page'))));
     }
 
     /**
@@ -61,7 +61,7 @@ class TaskController extends BaseController
             'author_id'     => auth()->user()->id
         ]);
 
-        return $this->sendResponse($task, 'Task created successfully.');
+        return $this->sendResponse(new TaskResource($task));
     }
 
     /**
@@ -78,7 +78,7 @@ class TaskController extends BaseController
             return $this->sendError('Task not found.');
         }
 
-        return $this->sendResponse($task->toArray(), 'Task retrieved successfully.');
+        return $this->sendResponse(new TaskResource($task));
     }
 
     /**
@@ -90,7 +90,6 @@ class TaskController extends BaseController
      */
     public function update(UpdateTask $request, Task $task)
     {
-
         $task->update($request->all());
 
         MongoLog::create([
@@ -101,7 +100,7 @@ class TaskController extends BaseController
             'author_id'     => auth()->user()->id
         ]);
 
-        return $this->sendResponse($task->toArray(), 'Task updated successfully.');
+        return $this->sendResponse(new TaskResource($task));
     }
 
     /**
@@ -122,7 +121,7 @@ class TaskController extends BaseController
             'author_id'     => auth()->user()->id
         ]);
 
-        return $this->sendResponse($task->toArray(), 'Task deleted successfully.');
+        return $this->sendResponse(new TaskResource($task));
     }
 
 }

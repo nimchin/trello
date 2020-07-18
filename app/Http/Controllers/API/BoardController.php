@@ -4,24 +4,24 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Requests\Board\CreateBoard;
 use App\Http\Requests\Board\UpdateBoard;
+use App\Http\Resources\BoardResource;
 use App\Http\Resources\BoardsCollection;
 use App\MongoLog;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Board;
-use Validator;
+use Illuminate\Http\JsonResponse;
+
 
 class BoardController extends BaseController
 {
     /**
      * Display a listing of the resource.
      *
-     * @return BoardsCollection
+     * @return JsonResponse
      */
     public function index()
     {
-        return new BoardsCollection(Board::paginate(config('pagination.per_page')));
+        return $this->sendResponse(new BoardsCollection(Board::paginate(config('pagination.per_page'))));
     }
 
     /**
@@ -42,7 +42,7 @@ class BoardController extends BaseController
             'author_id'     => auth()->user()->id
         ]);
 
-        return $this->sendResponse($board->toArray(), 'Board created successfully.');
+        return $this->sendResponse(new BoardResource($board));
     }
 
     /**
@@ -53,13 +53,7 @@ class BoardController extends BaseController
      */
     public function show($id)
     {
-        $board = Board::find($id);
-
-        if (is_null($board)) {
-            return $this->sendError('Board not found.');
-        }
-
-        return $this->sendResponse($board->toArray(), 'Board retrieved successfully.');
+        return $this->sendResponse(new BoardResource(Board::find($id)));
     }
 
     /**
@@ -71,7 +65,6 @@ class BoardController extends BaseController
      */
     public function update(UpdateBoard $request, Board $board)
     {
-
         $board->update($request->all());
 
         MongoLog::create([
@@ -82,7 +75,7 @@ class BoardController extends BaseController
             'author_id'     => auth()->user()->id
         ]);
 
-        return $this->sendResponse($board->toArray(), 'Board updated successfully.');
+        return $this->sendResponse(new BoardResource($board));
     }
 
     /**
@@ -97,14 +90,14 @@ class BoardController extends BaseController
         $board->delete();
 
         MongoLog::create([
-            'crud_type'     => 'update',
-            'entity_type'   => 'task',
+            'crud_type'     => 'delete',
+            'entity_type'   => 'board',
             'entity_id'     => $board->id,
             'message'       => 'Board was deleted!',
             'author_id'     => auth()->user()->id
         ]);
 
-        return $this->sendResponse($board->toArray(), 'Board deleted successfully.');
+        return $this->sendResponse(new BoardResource($board));
     }
 
 }
